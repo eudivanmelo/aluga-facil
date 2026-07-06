@@ -1,7 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideHouse, LucideHeart, LucideUser, LucideMenu, LucideX, LucidePlus, LucideLogOut, LucideFileText } from '@lucide/angular';
+import { 
+  LucideUser, 
+  LucideMenu, 
+  LucideX, 
+  LucidePlus, 
+  LucideLogOut,
+  LucideDynamicIcon 
+} from '@lucide/angular';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -9,7 +16,15 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, LucideFileText],
+  imports: [
+    CommonModule, 
+    RouterLink, 
+    RouterLinkActive,
+    LucideUser, 
+    LucidePlus, 
+    LucideLogOut,
+    LucideDynamicIcon
+  ],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent {
@@ -18,7 +33,8 @@ export class HeaderComponent {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
-  readonly icons = { LucideHouse, LucideHeart, LucideUser, LucideMenu, LucideX, LucidePlus, LucideLogOut };
+  readonly icons = { LucideMenu, LucideX };
+  
   readonly mobileMenuOpen = signal(false);
   readonly userMenuOpen = signal(false);
 

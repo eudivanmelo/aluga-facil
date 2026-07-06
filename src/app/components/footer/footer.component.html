@@ -1,49 +1,26 @@
 <footer class="mt-16 border-t border-gray-100 bg-white">
-  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-      <div>
-        <div class="flex items-center gap-2">
-          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-            <lucide-icon [img]="icons.Home" [size]="16"></lucide-icon>
-          </div>
-          <span class="text-base font-extrabold text-gray-900">Aluga<span class="text-brand-600">Fácil</span></span>
+  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+      
+      <!-- Logo (Esquerda) -->
+      <div class="flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
+          <img src="house-logo.svg" alt="AlugaFácil Logo" class="h-5 w-5" />
         </div>
-        <p class="mt-3 text-sm leading-relaxed text-gray-500">
-          A forma mais simples de encontrar ou anunciar imóveis para alugar em todo o Brasil.
-        </p>
+        <span class="text-base font-extrabold text-gray-900">Aluga<span class="text-brand-600">Fácil</span></span>
       </div>
 
-      <div>
-        <h3 class="text-sm font-semibold text-gray-900">Navegação</h3>
-        <ul class="mt-3 space-y-2 text-sm text-gray-500">
-          <li><a routerLink="/" class="transition-colors hover:text-brand-600">Explorar imóveis</a></li>
-          <li><a routerLink="/imoveis/novo" class="transition-colors hover:text-brand-600">Anunciar imóvel</a></li>
-          <li><a routerLink="/login" class="transition-colors hover:text-brand-600">Entrar</a></li>
-          <li><a routerLink="/cadastro" class="transition-colors hover:text-brand-600">Criar conta</a></li>
-        </ul>
-      </div>
+      <!-- Direitos Reservados (Centro) -->
+      <p class="text-sm text-gray-500 text-center">
+        &copy; {{ year }} AlugaFácil. Todos os direitos reservados.
+      </p>
 
-      <div>
-        <h3 class="text-sm font-semibold text-gray-900">Suporte</h3>
-        <ul class="mt-3 space-y-2 text-sm text-gray-500">
-          <li>Central de ajuda</li>
-          <li>Termos de uso</li>
-          <li>Política de privacidade</li>
-        </ul>
+      <!-- Links (Direita) -->
+      <div class="flex items-center gap-6 text-sm font-medium text-gray-500">
+        <a class="cursor-pointer transition-colors hover:text-brand-600">Central de ajuda</a>
+        <a class="cursor-pointer transition-colors hover:text-brand-600">Termos de uso</a>
       </div>
-
-      <div>
-        <h3 class="text-sm font-semibold text-gray-900">Contato</h3>
-        <ul class="mt-3 space-y-2 text-sm text-gray-500">
-          <li class="flex items-center gap-2"><lucide-icon [img]="icons.Mail" [size]="14"></lucide-icon> contato&#64;alugafacil.com.br</li>
-          <li class="flex items-center gap-2"><lucide-icon [img]="icons.Phone" [size]="14"></lucide-icon> 0800 123 4567</li>
-          <li class="flex items-center gap-2"><lucide-icon [img]="icons.MapPin" [size]="14"></lucide-icon> São Paulo, SP</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-8 border-t border-gray-100 pt-6 text-center text-xs text-gray-400">
-      &copy; {{ year }} AlugaFácil. Todos os direitos reservados. Projeto acadêmico sem fins comerciais.
+      
     </div>
   </div>
 </footer>

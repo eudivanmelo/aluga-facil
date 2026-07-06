@@ -1,0 +1,8 @@
+:host {
+	display: block;
+	min-height: 100dvh;
+}
+
+.app-shell__main {
+	flex: 1;
+}

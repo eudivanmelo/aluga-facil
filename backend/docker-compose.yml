@@ -1,0 +1,55 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: aluga-facil-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aluga_facil
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aluga_facil"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aluga-facil-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: >
+        Host=db;Port=5432;Database=aluga_facil;Username=postgres;Password=${DB_PASSWORD:-postgres}
+      Jwt__Key: ${JWT_KEY:-ALTERE_ESTA_CHAVE_SECRETA_COM_MINIMO_32_CHARS}
+      Jwt__Issuer: aluga-facil-api
+      Jwt__Audience: aluga-facil-app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: aluga-facil-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@alugafacil.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    profiles:
+      - tools
+
+volumes:
+  pgdata:

@@ -1,2 +1,39 @@
 <app-hero></app-hero>
 <app-filter-bar />
+
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <!-- Count Header -->
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-xl font-bold text-gray-900 md:text-2xl">
+      <span class="text-brand-600 font-extrabold">{{ propertyService.filteredTotal() }}</span>
+      {{ propertyService.filteredTotal() === 1 ? ' imóvel encontrado' : ' imóveis encontrados' }}
+    </h2>
+  </div>
+
+  <!-- Properties Grid -->
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    @for (property of propertyService.filteredProperties(); track property.id) {
+      <app-property-card [property]="property" />
+    } @empty {
+      <!-- Beautiful Empty State fallback -->
+      <div class="col-span-full flex flex-col items-center justify-center text-center py-16 px-4 bg-white rounded-2xl border border-gray-100 shadow-sm animate-scale-in">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-600 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-7 h-7">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.603 10.603Z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-1">Nenhum imóvel encontrado</h3>
+        <p class="text-sm text-gray-500 max-w-sm mb-6">
+          Não encontramos nenhum imóvel correspondente aos filtros selecionados. Tente ajustar suas preferências.
+        </p>
+        <button
+          type="button"
+          (click)="propertyService.resetFilters()"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2.5 shadow-sm transition-all active:scale-[0.98]"
+        >
+          Limpar todos os filtros
+        </button>
+      </div>
+    }
+  </div>
+</div>

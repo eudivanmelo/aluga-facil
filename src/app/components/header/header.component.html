@@ -10,7 +10,11 @@
     <nav class="hidden items-center gap-1 md:flex">
       <a routerLink="/" routerLinkActive="bg-brand-50 text-brand-700" [routerLinkActiveOptions]="{ exact: true }"
          class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100">
-        Explorar imóveis
+        Início
+      </a>
+      <a routerLink="/mapa" routerLinkActive="bg-brand-50 text-brand-700"
+         class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100">
+        Mapa
       </a>
       @if (isAuthenticated()) {
         <a routerLink="/perfil/favoritos" routerLinkActive="bg-brand-50 text-brand-700"
@@ -74,7 +78,8 @@
   @if (mobileMenuOpen()) {
     <div class="animate-fade-in-up border-t border-gray-100 bg-white px-4 py-3 md:hidden">
       <nav class="flex flex-col gap-1">
-        <a routerLink="/" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Explorar imóveis</a>
+        <a routerLink="/" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Início</a>
+        <a routerLink="/mapa" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Mapa</a>
         @if (isAuthenticated()) {
           <a routerLink="/perfil/favoritos" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Favoritos ({{ favoritesCount() }})</a>
           <a routerLink="/imoveis/novo" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Anunciar imóvel</a>

@@ -1,5 +1,6 @@
 import { Component, inject, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { 
   LucideHeart, 
   LucideMapPin, 
@@ -29,6 +30,7 @@ import { ToastService } from '../../core/services/toast.service';
 export class PropertyCardComponent {
   private readonly favoritesService = inject(FavoritesService);
   private readonly toastService = inject(ToastService);
+  private readonly router = inject(Router);
 
   readonly property = input.required<Property>();
 
@@ -75,6 +77,6 @@ export class PropertyCardComponent {
   }
 
   navigateToDetails(): void {
-    // todo
+    this.router.navigate(['/imovel', this.property().id]);
   }
 }

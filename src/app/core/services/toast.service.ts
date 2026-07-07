@@ -6,6 +6,7 @@ export interface ToastMessage {
   id: number;
   type: ToastType;
   message: string;
+  isExiting?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,6 +35,15 @@ export class ToastService {
   }
 
   dismiss(id: number): void {
-    this._toasts.update((list) => list.filter((t) => t.id !== id));
+    const toast = this._toasts().find((t) => t.id === id);
+    if (!toast || toast.isExiting) return;
+
+    this._toasts.update((list) =>
+      list.map((t) => (t.id === id ? { ...t, isExiting: true } : t))
+    );
+
+    setTimeout(() => {
+      this._toasts.update((list) => list.filter((t) => t.id !== id));
+    }, 150);
   }
 }

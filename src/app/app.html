@@ -5,4 +5,45 @@
     <router-outlet></router-outlet>
   </main>
   <app-footer></app-footer>
+
+  <!-- Toast Container -->
+  <div class="fixed top-4 right-4 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+    @for (toast of toastService.toasts(); track toast.id) {
+      <div
+        class="pointer-events-auto flex items-start gap-3 rounded-2xl border bg-white p-4 shadow-lg ring-1 ring-black/5"
+        [ngClass]="{
+          'border-green-100 bg-green-50': toast.type === 'success',
+          'border-red-100 bg-red-50': toast.type === 'error',
+          'border-blue-100 bg-blue-50': toast.type === 'info',
+          'animate-toast-in': !toast.isExiting,
+          'animate-toast-out': toast.isExiting
+        }"
+      >
+        <!-- Icon -->
+        <div class="shrink-0 mt-0.5">
+          @if (toast.type === 'success') {
+            <svg lucideCheck [size]="18" class="text-green-600"></svg>
+          } @else if (toast.type === 'error') {
+            <svg lucideCircleAlert [size]="18" class="text-red-600"></svg>
+          } @else {
+            <svg lucideInfo [size]="18" class="text-blue-600"></svg>
+          }
+        </div>
+
+        <!-- Message Content -->
+        <div class="flex-1 text-sm font-medium text-gray-800">
+          {{ toast.message }}
+        </div>
+
+        <!-- Dismiss Button -->
+        <button
+          (click)="toastService.dismiss(toast.id)"
+          class="shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+          aria-label="Fechar notificação"
+        >
+          <svg lucideX [size]="14"></svg>
+        </button>
+      </div>
+    }
+  </div>
 </div>

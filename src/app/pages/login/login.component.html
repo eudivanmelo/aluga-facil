@@ -1,0 +1,126 @@
+<div class="flex min-h-[calc(100vh-140px)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+  <div class="card w-full max-w-md bg-white p-8 sm:p-10 border border-gray-100 shadow-sm rounded-3xl">
+    <!-- Icon Container -->
+    <div class="flex justify-center mb-6">
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-md shadow-brand-200">
+        <img src="house-logo.svg" alt="AlugaFácil Logo" class="h-10 w-10" />
+      </div>
+    </div>
+
+    <!-- Title and Subtitle -->
+    <div class="text-center mb-8">
+      <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+        Bem-vindo de volta
+      </h2>
+      <p class="mt-2 text-sm text-gray-500">
+        Entre na sua conta para continuar
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <!-- Email Field -->
+      <div>
+        <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">
+          E-mail
+        </label>
+        <div class="relative rounded-xl">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+            <svg lucideMail [size]="18" class="text-gray-400"></svg>
+          </div>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="seu@email.com"
+            class="input-field !pl-10"
+            [ngClass]="{ 'input-error': loginForm.get('email')?.touched && loginForm.get('email')?.invalid }"
+          />
+        </div>
+        @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+          <div class="field-error">
+            @if (loginForm.get('email')?.errors?.['required']) {
+              O e-mail é obrigatório.
+            } @else if (loginForm.get('email')?.errors?.['email']) {
+              Por favor, insira um e-mail válido.
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label for="password" class="block text-sm font-semibold text-gray-700">
+            Senha
+          </label>
+          <button
+            type="button"
+            (click)="onForgotPassword()"
+            class="text-xs font-semibold text-brand-600 hover:text-brand-700 transition-colors"
+          >
+            Esqueci minha senha
+          </button>
+        </div>
+        <div class="relative rounded-xl">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+            <svg lucideLock [size]="18" class="text-gray-400"></svg>
+          </div>
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            class="input-field !pl-10 !pr-10"
+            [ngClass]="{ 'input-error': loginForm.get('password')?.touched && loginForm.get('password')?.invalid }"
+          />
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+            aria-label="Alternar visibilidade da senha"
+          >
+            @if (showPassword()) {
+              <svg lucideEyeOff [size]="18"></svg>
+            } @else {
+              <svg lucideEye [size]="18"></svg>
+            }
+          </button>
+        </div>
+        @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+          <div class="field-error">
+            @if (loginForm.get('password')?.errors?.['required']) {
+              A senha é obrigatória.
+            } @else if (loginForm.get('password')?.errors?.['minlength']) {
+              A senha deve ter no mínimo 6 caracteres.
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="isSubmitting() || loginForm.invalid"
+        class="btn-primary w-full !py-3 !rounded-xl text-sm font-bold shadow-sm transition-all flex justify-center items-center gap-2"
+      >
+        @if (isSubmitting()) {
+          <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+          Entrando...
+        } @else {
+          Entrar
+        }
+      </button>
+    </form>
+
+    <!-- Bottom Link -->
+    <div class="text-center mt-8">
+      <p class="text-sm text-gray-500">
+        Não tem conta?
+        <a routerLink="/cadastro" class="font-bold text-brand-600 hover:text-brand-700 transition-colors ml-1">
+          Criar conta grátis
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

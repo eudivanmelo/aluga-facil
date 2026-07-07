@@ -1,0 +1,219 @@
+<div class="flex min-h-[calc(100vh-140px)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+  <div class="card w-full max-w-lg bg-white p-8 sm:p-10 border border-gray-100 shadow-sm rounded-3xl">
+    <!-- Title and Subtitle -->
+    <div class="text-center mb-8">
+      <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+        Criar sua conta
+      </h2>
+      <p class="mt-2 text-sm text-gray-500">
+        Grátis e sem burocracia
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="cadastroForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <!-- Full Name Field -->
+      <div>
+        <label for="name" class="block text-sm font-semibold text-gray-700 mb-1.5">
+          Nome completo *
+        </label>
+        <div class="relative rounded-xl">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+            <svg lucideUser [size]="18" class="text-gray-400"></svg>
+          </div>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            placeholder="Seu nome"
+            class="input-field !pl-10"
+            [ngClass]="{ 'input-error': cadastroForm.get('name')?.touched && cadastroForm.get('name')?.invalid }"
+          />
+        </div>
+        @if (cadastroForm.get('name')?.touched && cadastroForm.get('name')?.invalid) {
+          <div class="field-error">
+            O nome completo é obrigatório.
+          </div>
+        }
+      </div>
+
+      <!-- Email Field -->
+      <div>
+        <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">
+          E-mail *
+        </label>
+        <div class="relative rounded-xl">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+            <svg lucideMail [size]="18" class="text-gray-400"></svg>
+          </div>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="seu@email.com"
+            class="input-field !pl-10"
+            [ngClass]="{ 'input-error': cadastroForm.get('email')?.touched && cadastroForm.get('email')?.invalid }"
+          />
+        </div>
+        @if (cadastroForm.get('email')?.touched && cadastroForm.get('email')?.invalid) {
+          <div class="field-error">
+            @if (cadastroForm.get('email')?.errors?.['required']) {
+              O e-mail é obrigatório.
+            } @else if (cadastroForm.get('email')?.errors?.['email']) {
+              Por favor, insira um e-mail válido.
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Phone / WhatsApp Field -->
+      <div>
+        <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1.5">
+          Telefone / WhatsApp
+        </label>
+        <div class="relative rounded-xl">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+            <svg lucidePhone [size]="18" class="text-gray-400"></svg>
+          </div>
+          <input
+            id="phone"
+            type="text"
+            formControlName="phone"
+            placeholder="(11) 99999-9999"
+            class="input-field !pl-10"
+          />
+        </div>
+      </div>
+
+      <!-- Password and Confirm Password Row -->
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="block text-sm font-semibold text-gray-700 mb-1.5">
+            Senha *
+          </label>
+          <div class="relative rounded-xl">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+              <svg lucideLock [size]="18" class="text-gray-400"></svg>
+            </div>
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••"
+              class="input-field !pl-10 !pr-10"
+              [ngClass]="{ 'input-error': cadastroForm.get('password')?.touched && cadastroForm.get('password')?.invalid }"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              aria-label="Alternar visibilidade da senha"
+            >
+              @if (showPassword()) {
+                <svg lucideEyeOff [size]="18"></svg>
+              } @else {
+                <svg lucideEye [size]="18"></svg>
+              }
+            </button>
+          </div>
+          @if (cadastroForm.get('password')?.touched && cadastroForm.get('password')?.invalid) {
+            <div class="field-error">
+              @if (cadastroForm.get('password')?.errors?.['required']) {
+                A senha é obrigatória.
+              } @else if (cadastroForm.get('password')?.errors?.['minlength']) {
+                Mínimo de 6 caracteres.
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div>
+          <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-1.5">
+            Confirmar *
+          </label>
+          <div class="relative rounded-xl">
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="••••••••"
+              class="input-field"
+              [ngClass]="{ 'input-error': cadastroForm.get('confirmPassword')?.touched && cadastroForm.get('confirmPassword')?.invalid }"
+            />
+            <button
+              type="button"
+              (click)="toggleConfirmPasswordVisibility()"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              aria-label="Alternar visibilidade da confirmação de senha"
+            >
+              @if (showConfirmPassword()) {
+                <svg lucideEyeOff [size]="18"></svg>
+              } @else {
+                <svg lucideEye [size]="18"></svg>
+              }
+            </button>
+          </div>
+          @if (cadastroForm.get('confirmPassword')?.touched && cadastroForm.get('confirmPassword')?.invalid) {
+            <div class="field-error">
+              @if (cadastroForm.get('confirmPassword')?.errors?.['required']) {
+                A confirmação é obrigatória.
+              } @else if (cadastroForm.get('confirmPassword')?.errors?.['mismatch']) {
+                As senhas não coincidem.
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Terms and Conditions Checkbox -->
+      <div class="pt-1">
+        <label class="relative flex items-start cursor-pointer select-none">
+          <div class="flex h-5 items-center">
+            <input
+              type="checkbox"
+              formControlName="terms"
+              class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 accent-brand-600"
+            />
+          </div>
+          <div class="ml-3 text-xs sm:text-sm">
+            <span class="text-gray-500">Eu concordo com os</span>
+            <a href="#" class="font-semibold text-brand-600 hover:text-brand-700 transition-colors mx-1" (click)="$event.preventDefault()">Termos de Uso</a>
+            <span class="text-gray-500">e a</span>
+            <a href="#" class="font-semibold text-brand-600 hover:text-brand-700 transition-colors ml-1" (click)="$event.preventDefault()">Política de Privacidade</a>
+          </div>
+        </label>
+        @if (cadastroForm.get('terms')?.touched && cadastroForm.get('terms')?.invalid) {
+          <div class="field-error !mt-2">
+            Você deve concordar com os termos para continuar.
+          </div>
+        }
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="isSubmitting() || cadastroForm.invalid"
+        class="btn-primary w-full !py-3 !rounded-xl text-sm font-bold shadow-sm transition-all flex justify-center items-center gap-2"
+      >
+        @if (isSubmitting()) {
+          <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+          Criando conta...
+        } @else {
+          Criar conta
+        }
+      </button>
+    </form>
+
+    <!-- Bottom Link -->
+    <div class="text-center mt-8">
+      <p class="text-sm text-gray-500">
+        Já tem conta?
+        <a routerLink="/login" class="font-bold text-brand-600 hover:text-brand-700 transition-colors ml-1">
+          Entrar
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

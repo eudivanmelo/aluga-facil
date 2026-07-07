@@ -56,6 +56,10 @@ export const theme = {
         "0%": { opacity: "0", transform: "translateY(-12px) scale(0.95)" },
         "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
       },
+      "toast-out": {
+        "0%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        "100%": { opacity: "0", transform: "translateY(-12px) scale(0.95)" },
+      },
     },
     animation: {
       "fade-in": "fade-in 0.4s ease-out both",
@@ -63,6 +67,7 @@ export const theme = {
       "scale-in": "scale-in 0.25s ease-out both",
       "slide-in-right": "slide-in-right 0.3s ease-out both",
       "toast-in": "toast-in 0.25s cubic-bezier(0.16,1,0.3,1) both",
+      "toast-out": "toast-out 0.15s ease-in both",
     },
   },
 };

@@ -38,6 +38,30 @@ export function passwordsMatchValidator(passwordKey: string, confirmKey: string)
   };
 }
 
+export function cpfValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value: string = control.value ?? '';
+    if (!value) return null;
+
+    const cpf = value.replace(/\D/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+      return { invalidCpf: true };
+    }
+
+    const checkDigit = (length: number): number => {
+      let sum = 0;
+      for (let i = 0; i < length; i++) {
+        sum += Number(cpf[i]) * (length + 1 - i);
+      }
+      const remainder = (sum * 10) % 11;
+      return remainder === 10 ? 0 : remainder;
+    };
+
+    const valid = checkDigit(9) === Number(cpf[9]) && checkDigit(10) === Number(cpf[10]);
+    return valid ? null : { invalidCpf: true };
+  };
+}
+
 export function phoneValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value: string = control.value ?? '';

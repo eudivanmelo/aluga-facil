@@ -37,6 +37,37 @@
         }
       </div>
 
+      <!-- CPF Field -->
+      <div>
+        <label for="cpf" class="block text-sm font-semibold text-gray-700 mb-1.5">
+          CPF *
+        </label>
+        <div class="relative rounded-xl">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+            <svg lucideIdCard [size]="18" class="text-gray-400"></svg>
+          </div>
+          <input
+            id="cpf"
+            type="text"
+            inputmode="numeric"
+            formControlName="cpf"
+            placeholder="000.000.000-00"
+            maxlength="14"
+            class="input-field !pl-10"
+            [ngClass]="{ 'input-error': cadastroForm.get('cpf')?.touched && cadastroForm.get('cpf')?.invalid }"
+          />
+        </div>
+        @if (cadastroForm.get('cpf')?.touched && cadastroForm.get('cpf')?.invalid) {
+          <div class="field-error">
+            @if (cadastroForm.get('cpf')?.errors?.['required']) {
+              O CPF é obrigatório.
+            } @else if (cadastroForm.get('cpf')?.errors?.['invalidCpf']) {
+              Informe um CPF válido.
+            }
+          </div>
+        }
+      </div>
+
       <!-- Email Field -->
       <div>
         <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -69,7 +100,7 @@
       <!-- Phone / WhatsApp Field -->
       <div>
         <label for="phone" class="block text-sm font-semibold text-gray-700 mb-1.5">
-          Telefone / WhatsApp
+          Telefone / WhatsApp *
         </label>
         <div class="relative rounded-xl">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -78,11 +109,18 @@
           <input
             id="phone"
             type="text"
+            inputmode="numeric"
             formControlName="phone"
             placeholder="(11) 99999-9999"
             class="input-field !pl-10"
+            [ngClass]="{ 'input-error': cadastroForm.get('phone')?.touched && cadastroForm.get('phone')?.invalid }"
           />
         </div>
+        @if (cadastroForm.get('phone')?.touched && cadastroForm.get('phone')?.invalid) {
+          <div class="field-error">
+            O telefone é obrigatório.
+          </div>
+        }
       </div>
 
       <!-- Password and Confirm Password Row -->

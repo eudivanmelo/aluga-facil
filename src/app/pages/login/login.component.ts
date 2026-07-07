@@ -2,14 +2,16 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { 
-  LucideMail, 
-  LucideLock, 
-  LucideEye, 
-  LucideEyeOff 
+import {
+  LucideIdCard,
+  LucideLock,
+  LucideEye,
+  LucideEyeOff
 } from '@lucide/angular';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { CpfPipe } from '../../core/pipes/cpf.pipe';
+import { cpfValidator } from '../../core/validators/custom-validators';
 
 @Component({
   selector: 'app-login',
@@ -17,11 +19,12 @@ import { ToastService } from '../../core/services/toast.service';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    LucideMail,
+    LucideIdCard,
     LucideLock,
     LucideEye,
     LucideEyeOff
   ],
+  providers: [CpfPipe],
   templateUrl: './login.component.html',
 })
 export class LoginComponent implements OnInit {
@@ -29,9 +32,10 @@ export class LoginComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly cpfPipe = inject(CpfPipe);
 
   readonly loginForm: FormGroup = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    cpf: ['', [Validators.required, cpfValidator()]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
@@ -42,29 +46,17 @@ export class LoginComponent implements OnInit {
     if (this.auth.isAuthenticated()) {
       this.router.navigate(['/']);
     }
+
+    this.loginForm.get('cpf')?.valueChanges.subscribe((val: string) => {
+      if (val) {
+        const formatted = this.cpfPipe.transform(val.replace(/\D/g, ''));
+        this.loginForm.get('cpf')?.setValue(formatted, { emitEvent: false });
+      }
+    });
   }
 
   togglePasswordVisibility(): void {
     this.showPassword.update((v) => !v);
-  }
-
-  async onForgotPassword(): Promise<void> {
-    const email = this.loginForm.get('email')?.value;
-    if (!email) {
-      this.toast.info('Por favor, informe seu e-mail no campo correspondente para recuperar a senha.');
-      return;
-    }
-
-    try {
-      const res = await this.auth.requestPasswordReset(email);
-      if (res.ok) {
-        this.toast.success('Se o e-mail estiver cadastrado, as instruções de recuperação foram enviadas.');
-      } else {
-        this.toast.error((res as { ok: false; message: string }).message);
-      }
-    } catch (error) {
-      this.toast.error('Erro ao processar a solicitação de redefinição de senha.');
-    }
   }
 
   async onSubmit(): Promise<void> {
@@ -74,15 +66,15 @@ export class LoginComponent implements OnInit {
     }
 
     this.isSubmitting.set(true);
-    const { email, password } = this.loginForm.value;
+    const { cpf, password } = this.loginForm.value;
 
     try {
-      const res = await this.auth.login({ email, password });
+      const res = await this.auth.login({ cpf: cpf.replace(/\D/g, ''), password });
       if (res.ok) {
         this.toast.success('Bem-vindo de volta! Login realizado com sucesso.');
         this.router.navigate(['/']);
       } else {
-        this.toast.error((res as { ok: false; message: string }).message);
+        this.toast.error(res.message);
       }
     } catch (error) {
       this.toast.error('Ocorreu um erro ao tentar realizar o login.');

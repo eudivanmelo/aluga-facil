@@ -2,17 +2,20 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { 
-  LucideUser, 
-  LucideMail, 
-  LucidePhone, 
-  LucideLock, 
-  LucideEye, 
-  LucideEyeOff 
+import {
+  LucideUser,
+  LucideMail,
+  LucidePhone,
+  LucideIdCard,
+  LucideLock,
+  LucideEye,
+  LucideEyeOff
 } from '@lucide/angular';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { PhonePipe } from '../../core/pipes/phone.pipe';
+import { CpfPipe } from '../../core/pipes/cpf.pipe';
+import { cpfValidator } from '../../core/validators/custom-validators';
 
 @Component({
   selector: 'app-cadastro',
@@ -23,11 +26,12 @@ import { PhonePipe } from '../../core/pipes/phone.pipe';
     LucideUser,
     LucideMail,
     LucidePhone,
+    LucideIdCard,
     LucideLock,
     LucideEye,
     LucideEyeOff
   ],
-  providers: [PhonePipe],
+  providers: [PhonePipe, CpfPipe],
   templateUrl: './cadastro.component.html',
 })
 export class CadastroComponent implements OnInit {
@@ -36,6 +40,7 @@ export class CadastroComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly phonePipe = inject(PhonePipe);
+  private readonly cpfPipe = inject(CpfPipe);
 
   readonly showPassword = signal(false);
   readonly showConfirmPassword = signal(false);
@@ -43,8 +48,9 @@ export class CadastroComponent implements OnInit {
 
   readonly cadastroForm: FormGroup = this.fb.group({
     name: ['', [Validators.required]],
+    cpf: ['', [Validators.required, cpfValidator()]],
     email: ['', [Validators.required, Validators.email]],
-    phone: [''],
+    phone: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]],
     terms: [false, [Validators.requiredTrue]]
@@ -62,6 +68,13 @@ export class CadastroComponent implements OnInit {
         const cleaned = val.replace(/\D/g, '');
         const formatted = this.phonePipe.transform(cleaned);
         this.cadastroForm.get('phone')?.setValue(formatted, { emitEvent: false });
+      }
+    });
+
+    this.cadastroForm.get('cpf')?.valueChanges.subscribe((val: string) => {
+      if (val) {
+        const formatted = this.cpfPipe.transform(val.replace(/\D/g, ''));
+        this.cadastroForm.get('cpf')?.setValue(formatted, { emitEvent: false });
       }
     });
   }
@@ -99,25 +112,22 @@ export class CadastroComponent implements OnInit {
     }
 
     this.isSubmitting.set(true);
-    const { name, email, password, phone } = this.cadastroForm.value;
+    const { name, cpf, email, password, phone } = this.cadastroForm.value;
 
     try {
       const res = await this.auth.register({
+        cpf: cpf.replace(/\D/g, ''),
         name,
         email,
         password,
-        role: 'inquilino'
+        phone: phone.replace(/\D/g, '')
       });
 
       if (res.ok) {
-        if (phone) {
-          this.auth.updateProfile({ phone });
-        }
-        
         this.toast.success('Sua conta foi criada com sucesso! Seja bem-vindo.');
         this.router.navigate(['/']);
       } else {
-        this.toast.error((res as { ok: false; message: string }).message);
+        this.toast.error(res.message);
       }
     } catch (error) {
       this.toast.error('Ocorreu um erro ao tentar criar a sua conta.');

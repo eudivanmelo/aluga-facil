@@ -16,24 +16,6 @@ export const authGuard: CanActivateFn = (route, state) => {
   return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
 };
 
-export const anuncianteGuard: CanActivateFn = (route, state) => {
-  const auth = inject(AuthService);
-  const router = inject(Router);
-  const toast = inject(ToastService);
-
-  if (!auth.isAuthenticated()) {
-    toast.info('Você precisa entrar na sua conta para acessar essa página.');
-    return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
-  }
-
-  if (!auth.isAnunciante()) {
-    toast.error('Somente contas de anunciante podem gerenciar imóveis.');
-    return router.createUrlTree(['/']);
-  }
-
-  return true;
-};
-
 export const guestGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);

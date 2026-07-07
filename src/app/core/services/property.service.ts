@@ -1,4 +1,5 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Property, PropertyFilters } from '../models/property.model';
 import { MOCK_PROPERTIES } from '../data/mock-properties.data';
 
@@ -14,6 +15,7 @@ export const EMPTY_FILTERS: PropertyFilters = {
 
 @Injectable({ providedIn: 'root' })
 export class PropertyService {
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly _properties = signal<Property[]>(this.restore());
   private readonly _filters = signal<PropertyFilters>({ ...EMPTY_FILTERS });
 
@@ -45,6 +47,7 @@ export class PropertyService {
   readonly filteredTotal = computed(() => this.filteredProperties().length);
 
   private restore(): Property[] {
+    if (!this.isBrowser) return [...MOCK_PROPERTIES];
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw) as Property[];
@@ -55,6 +58,7 @@ export class PropertyService {
   }
 
   private persist(): void {
+    if (!this.isBrowser) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this._properties()));
   }
 

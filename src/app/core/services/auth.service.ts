@@ -1,140 +1,111 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { AppUser, StoredCredential, UserRole } from '../models/user.model';
+import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AppUser } from '../models/user.model';
 
-const STORAGE_USERS_KEY = 'aluga-facil:users';
-const STORAGE_SESSION_KEY = 'aluga-facil:session';
+const STORAGE_TOKEN_KEY = 'aluga-facil:token';
+const STORAGE_USER_KEY = 'aluga-facil:user';
 
 export interface RegisterPayload {
+  cpf: string;
   name: string;
   email: string;
   password: string;
-  role: UserRole;
+  phone: string;
 }
 
 export interface LoginPayload {
-  email: string;
+  cpf: string;
   password: string;
 }
 
+interface AuthResponse {
+  token: string;
+  user: AppUser;
+}
+
+type AuthResult = { ok: true } | { ok: false; message: string };
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly _currentUser = signal<AppUser | null>(this.restoreSession());
+  private readonly http = inject(HttpClient);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  private readonly _currentUser = signal<AppUser | null>(this.restoreUser());
+  private readonly _token = signal<string | null>(
+    this.isBrowser ? localStorage.getItem(STORAGE_TOKEN_KEY) : null
+  );
   private readonly _loading = signal(false);
 
   readonly currentUser = this._currentUser.asReadonly();
+  readonly token = this._token.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly isAuthenticated = computed(() => this._currentUser() !== null);
-  readonly isAnunciante = computed(() => this._currentUser()?.role === 'anunciante');
 
-  private restoreSession(): AppUser | null {
+  private restoreUser(): AppUser | null {
+    if (!this.isBrowser) return null;
     try {
-      const raw = localStorage.getItem(STORAGE_SESSION_KEY);
+      const raw = localStorage.getItem(STORAGE_USER_KEY);
       return raw ? (JSON.parse(raw) as AppUser) : null;
     } catch {
       return null;
     }
   }
 
-  private getUsers(): StoredCredential[] {
+  private setSession(response: AuthResponse): void {
+    this._currentUser.set(response.user);
+    this._token.set(response.token);
+    if (this.isBrowser) {
+      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(response.user));
+      localStorage.setItem(STORAGE_TOKEN_KEY, response.token);
+    }
+  }
+
+  async register(payload: RegisterPayload): Promise<AuthResult> {
+    this._loading.set(true);
     try {
-      const raw = localStorage.getItem(STORAGE_USERS_KEY);
-      return raw ? (JSON.parse(raw) as StoredCredential[]) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private saveUsers(users: StoredCredential[]): void {
-    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
-  }
-
-  private persistSession(user: AppUser | null): void {
-    if (user) {
-      localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(STORAGE_SESSION_KEY);
-    }
-  }
-
-  async register(payload: RegisterPayload): Promise<{ ok: true } | { ok: false; message: string }> {
-    this._loading.set(true);
-    await simulateLatency();
-
-    const users = this.getUsers();
-    const exists = users.some((u) => u.email.toLowerCase() === payload.email.toLowerCase());
-    if (exists) {
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>(`${environment.apiUrl}/auth/register`, payload)
+      );
+      this.setSession(response);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, message: this.extractErrorMessage(error, 'Não foi possível criar sua conta.') };
+    } finally {
       this._loading.set(false);
-      return { ok: false, message: 'Já existe uma conta cadastrada com este e-mail.' };
     }
-
-    const newUser: AppUser = {
-      id: crypto.randomUUID(),
-      name: payload.name,
-      email: payload.email,
-      role: payload.role,
-      createdAt: Date.now(),
-    };
-
-    users.push({ email: payload.email, password: payload.password, user: newUser });
-    this.saveUsers(users);
-    this._currentUser.set(newUser);
-    this.persistSession(newUser);
-    this._loading.set(false);
-    return { ok: true };
   }
 
-  async login(payload: LoginPayload): Promise<{ ok: true } | { ok: false; message: string }> {
+  async login(payload: LoginPayload): Promise<AuthResult> {
     this._loading.set(true);
-    await simulateLatency();
-
-    const users = this.getUsers();
-    const match = users.find(
-      (u) => u.email.toLowerCase() === payload.email.toLowerCase() && u.password === payload.password
-    );
-
-    this._loading.set(false);
-    if (!match) {
-      return { ok: false, message: 'E-mail ou senha incorretos. Verifique seus dados e tente novamente.' };
-    }
-
-    this._currentUser.set(match.user);
-    this.persistSession(match.user);
-    return { ok: true };
-  }
-
-  async requestPasswordReset(email: string): Promise<{ ok: true } | { ok: false; message: string }> {
-    this._loading.set(true);
-    await simulateLatency();
-    const users = this.getUsers();
-    const exists = users.some((u) => u.email.toLowerCase() === email.toLowerCase());
-    this._loading.set(false);
-    if (!exists) {
-      return { ok: false, message: 'Não encontramos nenhuma conta com este e-mail.' };
-    }
-    return { ok: true };
-  }
-
-  updateProfile(partial: Partial<Pick<AppUser, 'name' | 'phone' | 'avatarUrl'>>): void {
-    const current = this._currentUser();
-    if (!current) return;
-    const updated: AppUser = { ...current, ...partial };
-    this._currentUser.set(updated);
-    this.persistSession(updated);
-
-    const users = this.getUsers();
-    const idx = users.findIndex((u) => u.user.id === current.id);
-    if (idx >= 0) {
-      users[idx] = { ...users[idx], user: updated };
-      this.saveUsers(users);
+    try {
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, payload)
+      );
+      this.setSession(response);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, message: this.extractErrorMessage(error, 'CPF ou senha incorretos.') };
+    } finally {
+      this._loading.set(false);
     }
   }
 
   logout(): void {
     this._currentUser.set(null);
-    this.persistSession(null);
+    this._token.set(null);
+    if (this.isBrowser) {
+      localStorage.removeItem(STORAGE_USER_KEY);
+      localStorage.removeItem(STORAGE_TOKEN_KEY);
+    }
   }
-}
 
-function simulateLatency(ms = 500): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  private extractErrorMessage(error: unknown, fallback: string): string {
+    if (error instanceof HttpErrorResponse && typeof error.error?.message === 'string') {
+      return error.error.message;
+    }
+    return fallback;
+  }
 }

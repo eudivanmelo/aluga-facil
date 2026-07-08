@@ -44,6 +44,15 @@ export interface PropertyDetail {
   whatsAppLink: string;
 }
 
+export interface PropertyMapPoint {
+  id: number;
+  title: string;
+  price: number;
+  latitude: number;
+  longitude: number;
+  firstPhotoUrl: string | null;
+}
+
 export interface PropertyFilters {
   city: string;
   maxPrice: number | null;

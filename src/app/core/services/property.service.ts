@@ -2,7 +2,7 @@ import { Injectable, effect, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PagedResult, PropertyDetail, PropertyFilters, PropertySummary } from '../models/property.model';
+import { PagedResult, PropertyDetail, PropertyFilters, PropertyMapPoint, PropertySummary } from '../models/property.model';
 
 export const EMPTY_FILTERS: PropertyFilters = {
   city: '',
@@ -72,6 +72,14 @@ export class PropertyService {
   async getMine(): Promise<PropertySummary[]> {
     try {
       return await firstValueFrom(this.http.get<PropertySummary[]>(`${environment.apiUrl}/properties/mine`));
+    } catch {
+      return [];
+    }
+  }
+
+  async getMapProperties(): Promise<PropertyMapPoint[]> {
+    try {
+      return await firstValueFrom(this.http.get<PropertyMapPoint[]>(`${environment.apiUrl}/properties/map`));
     } catch {
       return [];
     }

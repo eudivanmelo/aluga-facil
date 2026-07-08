@@ -25,6 +25,13 @@ body {
   animation: fade-in 0.35s ease-out both;
 }
 
+/* Popup dos pins do mapa de imóveis (maplibre-gl) — remove o padding padrão para o card ficar coladinho nas bordas */
+.property-popup .maplibregl-popup-content {
+  padding: 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
 @layer components {
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98];

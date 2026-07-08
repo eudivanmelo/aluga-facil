@@ -1,9 +1,10 @@
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AppUser } from '../models/user.model';
+import { extractErrorMessage } from '../utils/http-error.util';
 
 const STORAGE_TOKEN_KEY = 'aluga-facil:token';
 const STORAGE_USER_KEY = 'aluga-facil:user';
@@ -77,7 +78,7 @@ export class AuthService {
       this.setSession(response);
       return { ok: true };
     } catch (error) {
-      return { ok: false, message: this.extractErrorMessage(error, 'Não foi possível criar sua conta.') };
+      return { ok: false, message: extractErrorMessage(error, 'Não foi possível criar sua conta.') };
     } finally {
       this._loading.set(false);
     }
@@ -92,7 +93,7 @@ export class AuthService {
       this.setSession(response);
       return { ok: true };
     } catch (error) {
-      return { ok: false, message: this.extractErrorMessage(error, 'CPF ou senha incorretos.') };
+      return { ok: false, message: extractErrorMessage(error, 'CPF ou senha incorretos.') };
     } finally {
       this._loading.set(false);
     }
@@ -110,7 +111,7 @@ export class AuthService {
       }
       return { ok: true };
     } catch (error) {
-      return { ok: false, message: this.extractErrorMessage(error, 'Não foi possível atualizar seu perfil.') };
+      return { ok: false, message: extractErrorMessage(error, 'Não foi possível atualizar seu perfil.') };
     } finally {
       this._loading.set(false);
     }
@@ -123,12 +124,5 @@ export class AuthService {
       localStorage.removeItem(STORAGE_USER_KEY);
       localStorage.removeItem(STORAGE_TOKEN_KEY);
     }
-  }
-
-  private extractErrorMessage(error: unknown, fallback: string): string {
-    if (error instanceof HttpErrorResponse && typeof error.error?.message === 'string') {
-      return error.error.message;
-    }
-    return fallback;
   }
 }

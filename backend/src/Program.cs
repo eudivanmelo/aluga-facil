@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Minio;
+using Minio.DataModel.Args;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,18 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IStorageService, StorageService>();
+
+// ── MinIO ─────────────────────────────────────────────────────────────────────
+builder.Services.AddSingleton<IMinioClient>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    return new MinioClient()
+        .WithEndpoint(config["Minio:Endpoint"])
+        .WithCredentials(config["Minio:AccessKey"], config["Minio:SecretKey"])
+        .WithSSL(config.GetValue<bool>("Minio:UseSSL"))
+        .Build();
+});
 
 // ── JWT Authentication ────────────────────────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]!;
@@ -135,6 +149,44 @@ using (var scope = app.Services.CreateScope())
     {
         logger.LogError(ex, "Erro ao aplicar migrations.");
         throw;
+    }
+}
+
+// ── Inicializa o bucket do MinIO (cria com acesso público de leitura, se ainda não existir) ────
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var minio = scope.ServiceProvider.GetRequiredService<IMinioClient>();
+    var bucketName = app.Configuration["Minio:BucketName"]!;
+
+    try
+    {
+        var exists = await minio.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName));
+        if (!exists)
+        {
+            await minio.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
+
+            // Leitura pública: as fotos dos imóveis precisam ser acessíveis diretamente pela URL no front.
+            var publicReadPolicy = $$"""
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {"AWS": ["*"]},
+                  "Action": ["s3:GetObject"],
+                  "Resource": ["arn:aws:s3:::{{bucketName}}/*"]
+                }
+              ]
+            }
+            """;
+            await minio.SetPolicyAsync(new SetPolicyArgs().WithBucket(bucketName).WithPolicy(publicReadPolicy));
+            logger.LogInformation("Bucket MinIO '{Bucket}' criado com acesso público de leitura.", bucketName);
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Erro ao inicializar o bucket do MinIO.");
     }
 }
 

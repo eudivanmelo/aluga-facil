@@ -1,0 +1,10 @@
+<div class="relative h-full w-full">
+  <div #mapContainer class="h-full w-full"></div>
+  @if (latitude() === null) {
+    <div class="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/5">
+      <p class="rounded-lg bg-white/95 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm">
+        Clique no mapa para marcar o local exato
+      </p>
+    </div>
+  }
+</div>

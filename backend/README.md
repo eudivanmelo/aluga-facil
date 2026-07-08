@@ -139,6 +139,14 @@ A API estará disponível em:
 | `POST` | `/api/reviews` | Criar avaliação | ✅ |
 | `DELETE` | `/api/reviews/{id}` | Deletar avaliação | ✅ |
 
+### 🖼️ Fotos (`/api/photos`)
+
+| Método | Rota | Descrição | Auth |
+|--------|------|-----------|------|
+| `POST` | `/api/photos/upload` | Upload de imagem (`multipart/form-data`, campo `file`), retorna `{ "url": "..." }` para usar em `PhotoUrls` | ✅ |
+
+> Armazenamento via **MinIO** (S3-compatible). Limite de 10MB por arquivo, apenas `image/*`.
+
 ---
 
 ## 🏗️ Arquitetura
@@ -185,14 +193,28 @@ O frontend apenas abre essa URL — sem nenhuma dependência adicional.
 
 ---
 
-## 🐳 Docker (opcional)
+## 🐳 Docker
 
-Para subir o PostgreSQL rapidamente via Docker:
+Para subir a stack completa (API + PostgreSQL + MinIO) de uma vez:
 
 ```bash
-docker run --name aluga-facil-db \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=aluga_facil_dev \
-  -p 5432:5432 \
-  -d postgres:16
+cp .env.example .env   # ajuste as senhas se quiser
+docker compose up -d
 ```
+
+Isso sobe:
+- **API:** `http://localhost:8080` (Swagger na raiz)
+- **PostgreSQL:** `localhost:5432`
+- **MinIO API (S3):** `localhost:9000`
+- **MinIO Console (web):** `http://localhost:9001` (login com `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` do `.env`)
+
+O bucket de fotos (`aluga-facil-photos`) é criado automaticamente pela API na inicialização, já com política de leitura pública.
+
+> Só o PostgreSQL, sem o resto da stack:
+> ```bash
+> docker run --name aluga-facil-db \
+>   -e POSTGRES_PASSWORD=postgres \
+>   -e POSTGRES_DB=aluga_facil_dev \
+>   -p 5432:5432 \
+>   -d postgres:16
+> ```

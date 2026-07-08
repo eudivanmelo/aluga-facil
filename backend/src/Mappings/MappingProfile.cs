@@ -10,21 +10,24 @@ public class MappingProfile : Profile
     {
         CreateMap<User, UserResponse>();
 
+        // Records só têm construtor posicional, então os campos calculados precisam ser
+        // resolvidos via ForCtorParam — ForMember pressupõe "constrói e depois seta a
+        // propriedade", o que não existe em tipos sem construtor sem parâmetros.
         CreateMap<Property, PropertySummaryResponse>()
-            .ForMember(d => d.FirstPhotoUrl, o => o.MapFrom(s =>
+            .ForCtorParam(nameof(PropertySummaryResponse.FirstPhotoUrl), o => o.MapFrom(s =>
                 s.Photos.FirstOrDefault() != null ? s.Photos.First().Url : null));
 
         CreateMap<Property, PropertyDetailResponse>()
-            .ForMember(d => d.PhotoUrls, o => o.MapFrom(s => s.Photos.Select(p => p.Url).ToList()))
-            .ForMember(d => d.Owner, o => o.MapFrom(s => s.User))
-            .ForMember(d => d.WhatsAppLink, o => o.MapFrom(s =>
+            .ForCtorParam(nameof(PropertyDetailResponse.PhotoUrls), o => o.MapFrom(s => s.Photos.Select(p => p.Url).ToList()))
+            .ForCtorParam(nameof(PropertyDetailResponse.Owner), o => o.MapFrom(s => s.User))
+            .ForCtorParam(nameof(PropertyDetailResponse.WhatsAppLink), o => o.MapFrom(s =>
                 $"https://wa.me/55{s.User.Phone.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "")}"));
 
         CreateMap<Property, PropertyMapResponse>()
-            .ForMember(d => d.FirstPhotoUrl, o => o.MapFrom(s =>
+            .ForCtorParam(nameof(PropertyMapResponse.FirstPhotoUrl), o => o.MapFrom(s =>
                 s.Photos.FirstOrDefault() != null ? s.Photos.First().Url : null));
 
         CreateMap<Review, ReviewResponse>()
-            .ForMember(d => d.Author, o => o.MapFrom(s => s.Author));
+            .ForCtorParam(nameof(ReviewResponse.Author), o => o.MapFrom(s => s.Author));
     }
 }

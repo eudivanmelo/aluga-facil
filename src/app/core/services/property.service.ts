@@ -2,7 +2,18 @@ import { Injectable, effect, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PagedResult, PropertyDetail, PropertyFilters, PropertyMapPoint, PropertySummary } from '../models/property.model';
+import {
+  CreatePropertyPayload,
+  PagedResult,
+  PropertyDetail,
+  PropertyFilters,
+  PropertyMapPoint,
+  PropertySummary
+} from '../models/property.model';
+import { extractErrorMessage } from '../utils/http-error.util';
+
+type PropertyResult = { ok: true; property: PropertyDetail } | { ok: false; message: string };
+type UploadResult = { ok: true; url: string } | { ok: false; message: string };
 
 export const EMPTY_FILTERS: PropertyFilters = {
   city: '',
@@ -82,6 +93,30 @@ export class PropertyService {
       return await firstValueFrom(this.http.get<PropertyMapPoint[]>(`${environment.apiUrl}/properties/map`));
     } catch {
       return [];
+    }
+  }
+
+  async uploadPhoto(file: File): Promise<UploadResult> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await firstValueFrom(
+        this.http.post<{ url: string }>(`${environment.apiUrl}/photos/upload`, formData)
+      );
+      return { ok: true, url: res.url };
+    } catch (error) {
+      return { ok: false, message: extractErrorMessage(error, 'Não foi possível enviar a imagem.') };
+    }
+  }
+
+  async create(payload: CreatePropertyPayload): Promise<PropertyResult> {
+    try {
+      const property = await firstValueFrom(
+        this.http.post<PropertyDetail>(`${environment.apiUrl}/properties`, payload)
+      );
+      return { ok: true, property };
+    } catch (error) {
+      return { ok: false, message: extractErrorMessage(error, 'Não foi possível publicar o anúncio.') };
     }
   }
 }

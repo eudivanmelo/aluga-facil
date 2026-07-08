@@ -32,3 +32,9 @@ public interface IReviewService
     Task<ReviewResponse> CreateAsync(int authorId, CreateReviewRequest request);
     Task DeleteAsync(int authorId, int reviewId);
 }
+
+public interface IStorageService
+{
+    Task<string> UploadAsync(IFormFile file);
+    Task DeleteAsync(string fileUrl);
+}

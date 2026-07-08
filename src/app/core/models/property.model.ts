@@ -53,6 +53,28 @@ export interface PropertyMapPoint {
   firstPhotoUrl: string | null;
 }
 
+export interface CreatePropertyPayload {
+  title: string;
+  description: string;
+  price: number;
+  paymentFrequency: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  complement: string;
+  city: string;
+  state: string;
+  latitude: number;
+  longitude: number;
+  bedrooms: number;
+  bathrooms: number;
+  parkingSpaces: number;
+  petsAllowed: boolean;
+  isFurnished: boolean;
+  tags: string[];
+  photoUrls: string[];
+}
+
 export interface PropertyFilters {
   city: string;
   maxPrice: number | null;

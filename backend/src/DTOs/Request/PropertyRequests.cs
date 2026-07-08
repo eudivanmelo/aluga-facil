@@ -46,6 +46,8 @@ public record UpdatePropertyRequest(
 
 public record PropertyFilterRequest
 {
+    /// <summary>Busca livre — combina cidade, bairro e título (usada pela busca do Hero).</summary>
+    public string? Search { get; init; }
     public string? City { get; init; }
     public string? State { get; init; }
     public decimal? MinPrice { get; init; }

@@ -76,9 +76,15 @@ export interface CreatePropertyPayload {
 }
 
 export interface PropertyFilters {
+  /** Busca livre (cidade, bairro ou título) — usada pela busca do Hero. */
+  search: string;
+  /** Cidade exata escolhida no dropdown de filtros. */
   city: string;
   maxPrice: number | null;
   bedrooms: number | null;
+  petsAllowed: boolean | null;
+  isFurnished: boolean | null;
+  tag: string | null;
 }
 
 export interface PagedResult<T> {
@@ -87,4 +93,10 @@ export interface PagedResult<T> {
   pageSize: number;
   total: number;
   totalPages: number;
+}
+
+export interface PropertyStats {
+  activeProperties: number;
+  cities: number;
+  users: number;
 }

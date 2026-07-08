@@ -115,4 +115,6 @@ public class PropertyService : IPropertyService
 
         await _propertyRepository.DeleteAsync(property);
     }
+
+    public Task<List<string>> GetDistinctCitiesAsync() => _propertyRepository.GetDistinctCitiesAsync();
 }

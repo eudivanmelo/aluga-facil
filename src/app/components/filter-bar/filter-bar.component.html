@@ -1,7 +1,24 @@
-<div class="sticky top-[57px] md:top-[61px] z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-200">
+<div class="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-200">
   <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-    <!-- Filtros Toggle Button -->
-    <div class="flex items-center justify-end">
+    <!-- Quick access: pills de tipo + botão de filtros -->
+    <div class="flex items-center justify-between gap-4">
+      <!-- Scrollable Types list -->
+      <div class="flex flex-1 items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+        @for (type of quickTypes; track type) {
+          <button
+            type="button"
+            (click)="selectType(type)"
+            [ngClass]="{
+              'bg-brand-600 text-white shadow-sm ring-1 ring-brand-600': isTypeSelected(type),
+              'bg-brand-50/50 text-brand-800 hover:bg-brand-100/80 ring-1 ring-brand-100/50': !isTypeSelected(type)
+            }"
+            class="shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.98]"
+          >
+            {{ type }}
+          </button>
+        }
+      </div>
+
       <button
         type="button"
         (click)="toggleExtraFilters()"
@@ -22,7 +39,32 @@
     <!-- Extra Collapsible Filters Section -->
     @if (showExtraFilters()) {
       <div class="mt-4 border-t border-gray-100 pt-4 animate-fade-in">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-xl">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <!-- Cidade Dropdown -->
+          <div>
+            <label for="city" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Cidade
+            </label>
+            <div class="relative">
+              <select
+                id="city"
+                [value]="propertyService.filters().city"
+                (change)="changeCity($event)"
+                class="input-field appearance-none pr-10 cursor-pointer"
+              >
+                <option value="" [selected]="!propertyService.filters().city">Qualquer</option>
+                @for (city of cities(); track city) {
+                  <option [value]="city" [selected]="propertyService.filters().city === city">
+                    {{ city }}
+                  </option>
+                }
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <svg lucideChevronDown [size]="16" class="text-gray-400"></svg>
+              </div>
+            </div>
+          </div>
+
           <!-- Max Price Dropdown -->
           <div>
             <label for="maxPrice" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
@@ -72,6 +114,32 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Toggle chips -->
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            (click)="togglePetsAllowed()"
+            [ngClass]="{
+              'border-brand-600 bg-brand-50 text-brand-700': propertyService.filters().petsAllowed,
+              'border-gray-200 bg-white text-gray-600 hover:bg-gray-50': !propertyService.filters().petsAllowed
+            }"
+            class="rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors"
+          >
+            Aceita pets
+          </button>
+          <button
+            type="button"
+            (click)="toggleFurnished()"
+            [ngClass]="{
+              'border-brand-600 bg-brand-50 text-brand-700': propertyService.filters().isFurnished,
+              'border-gray-200 bg-white text-gray-600 hover:bg-gray-50': !propertyService.filters().isFurnished
+            }"
+            class="rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors"
+          >
+            Mobiliado
+          </button>
         </div>
       </div>
     }

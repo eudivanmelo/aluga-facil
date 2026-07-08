@@ -24,6 +24,12 @@ public interface IPropertyService
     Task<PropertyDetailResponse> CreateAsync(int userId, CreatePropertyRequest request);
     Task<PropertyDetailResponse> UpdateAsync(int userId, int propertyId, UpdatePropertyRequest request);
     Task DeleteAsync(int userId, int propertyId);
+    Task<List<string>> GetDistinctCitiesAsync();
+}
+
+public interface IStatsService
+{
+    Task<StatsResponse> GetStatsAsync();
 }
 
 public interface IReviewService

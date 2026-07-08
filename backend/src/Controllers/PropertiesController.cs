@@ -39,6 +39,15 @@ public class PropertiesController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>Retorna as cidades distintas com imóveis cadastrados, para popular filtros.</summary>
+    [HttpGet("cities")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCities()
+    {
+        var result = await _propertyService.GetDistinctCitiesAsync();
+        return Ok(result);
+    }
+
     /// <summary>Retorna os detalhes completos de um imóvel, incluindo link de WhatsApp do proprietário.</summary>
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]

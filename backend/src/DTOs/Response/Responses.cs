@@ -81,3 +81,9 @@ public record PagedResponse<T>(
     int Total,
     int TotalPages
 );
+
+public record StatsResponse(
+    int ActiveProperties,
+    int Cities,
+    int Users
+);

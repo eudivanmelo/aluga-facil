@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideSearch, LucideX } from '@lucide/angular';
 import { PropertyService } from '../../core/services/property.service';
+import { PropertyStats } from '../../core/models/property.model';
 
 @Component({
   selector: 'app-hero',
@@ -9,20 +10,19 @@ import { PropertyService } from '../../core/services/property.service';
   imports: [CommonModule, LucideSearch, LucideX],
   templateUrl: './hero.component.html',
 })
-export class HeroComponent {
+export class HeroComponent implements OnInit {
   private readonly propertyService = inject(PropertyService);
 
   readonly searchTerm = signal('');
+  readonly stats = signal<PropertyStats | null>(null);
 
-  readonly stats = [
-    { value: '1.200+', label: 'Imóveis ativos' },
-    { value: '150+', label: 'Cidades' },
-    { value: '8.500+', label: 'Usuários' },
-  ];
+  ngOnInit(): void {
+    this.propertyService.getStats().then((stats) => this.stats.set(stats));
+  }
 
   onSearchInput(value: string): void {
     this.searchTerm.set(value);
-    this.propertyService.setFilters({ city: value });
+    this.propertyService.setFilters({ search: value });
   }
 
   clearSearch(): void {

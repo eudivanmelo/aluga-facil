@@ -1,59 +1,76 @@
-# AlugaFacil
+# 🏠 Aluga Fácil
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.5.
+Plataforma de catálogo de imóveis para alugar, com contato direto entre inquilino e proprietário (sem intermediação). Full-stack: frontend em **Angular** e API em **.NET 8**.
 
-## Development server
+## Funcionalidades
 
-To start a local development server, run:
+- **Catálogo de imóveis** com busca (cidade, bairro ou título), filtros por tipo, preço, quartos, pets e mobiliado.
+- **Mapa interativo** (MapLibre + OpenStreetMap) com os imóveis geolocalizados.
+- **Detalhes do imóvel** com galeria de fotos e contato direto via WhatsApp/telefone.
+- **Autenticação** por CPF (cadastro/login com JWT).
+- **Perfil do usuário**: dados da conta e imóveis anunciados.
+- **Anunciar imóvel**: formulário em etapas com upload de fotos e seleção da localização exata no mapa.
+- **Hero da home** com estatísticas reais da plataforma (imóveis ativos, cidades, usuários).
 
-```bash
-ng serve
+## Stack
+
+| Camada | Tecnologias |
+|---|---|
+| Frontend | Angular 22 (standalone components, Signals), Tailwind CSS, MapLibre GL, Lucide Icons |
+| Backend | ASP.NET Core 8, Entity Framework Core, PostgreSQL |
+| Armazenamento de imagens | MinIO (S3-compatible) |
+| Autenticação | JWT Bearer Token |
+
+## Estrutura do repositório
+
+```
+aluga-facil/
+├── src/              # Frontend Angular (este projeto)
+└── backend/          # API .NET — ver backend/README.md
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Como rodar
 
-## Code scaffolding
+### 1. Backend (API + PostgreSQL + MinIO)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Sobe tudo via Docker Compose — veja detalhes e endpoints em [`backend/README.md`](backend/README.md):
 
 ```bash
-ng generate --help
+cd backend
+cp .env.example .env
+docker compose up -d
 ```
 
-## Building
+A API fica disponível em `http://localhost:8080` (Swagger na raiz).
 
-To build the project run:
+### 2. Frontend
 
 ```bash
-ng build
+npm install
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+A aplicação fica disponível em `http://localhost:4200`. A URL da API é configurada em `src/environments/environment.ts` / `environment.development.ts` (`apiUrl`).
 
-## Running unit tests
+## Scripts úteis
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+| Comando | Descrição |
+|---|---|
+| `npm start` | Sobe o servidor de desenvolvimento (`ng serve`) |
+| `npm run build` | Build de produção (saída em `dist/`) |
+| `npm test` | Roda os testes unitários (Vitest) |
 
-```bash
-ng test
+## Arquitetura do frontend
+
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+src/app/
+├── components/     # Componentes reutilizáveis (header, footer, hero, mapa, cards...)
+├── pages/          # Telas/rotas (home, login, cadastro, perfil, anunciar imóvel...)
+└── core/
+    ├── services/     # Comunicação com a API e estado da aplicação
+    ├── models/       # Interfaces alinhadas aos DTOs do backend
+    ├── guards/       # Proteção de rotas autenticadas
+    ├── interceptors/ # Injeção do token JWT nas chamadas à API
+    ├── pipes/        # Máscaras de CPF/telefone
+    └── validators/   # Validadores de formulário (CPF, senha, telefone)
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

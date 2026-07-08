@@ -20,6 +20,15 @@ body {
 ::-webkit-scrollbar-thumb { @apply bg-gray-300 rounded-full; }
 ::-webkit-scrollbar-thumb:hover { @apply bg-gray-400; }
 
+/* Some elementos rolam horizontalmente (ex: pills de filtro) sem mostrar a barra de rolagem */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Transição de rotas (usada pelo RouterOutlet com animações) */
 .route-fade {
   animation: fade-in 0.35s ease-out both;

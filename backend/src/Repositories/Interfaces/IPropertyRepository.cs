@@ -12,4 +12,5 @@ public interface IPropertyRepository
     Task<Property> CreateAsync(Property property, List<string> photoUrls);
     Task<Property> UpdateAsync(Property property, List<string>? photoUrls);
     Task DeleteAsync(Property property);
+    Task<List<string>> GetDistinctCitiesAsync();
 }

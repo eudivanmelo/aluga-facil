@@ -19,6 +19,15 @@ public class PropertyRepository : IPropertyRepository
             .Include(p => p.User)
             .AsQueryable();
 
+        if (!string.IsNullOrEmpty(filter.Search))
+        {
+            var term = filter.Search.ToLower();
+            query = query.Where(p =>
+                p.City.ToLower().Contains(term) ||
+                p.Neighborhood.ToLower().Contains(term) ||
+                p.Title.ToLower().Contains(term));
+        }
+
         if (!string.IsNullOrEmpty(filter.City))
             query = query.Where(p => p.City.ToLower().Contains(filter.City.ToLower()));
 
@@ -114,4 +123,12 @@ public class PropertyRepository : IPropertyRepository
         _context.Properties.Remove(property);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<string>> GetDistinctCitiesAsync() =>
+        await _context.Properties
+            .Where(p => p.City != "")
+            .Select(p => p.City)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync();
 }

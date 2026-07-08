@@ -8,6 +8,7 @@ import {
   PropertyDetail,
   PropertyFilters,
   PropertyMapPoint,
+  PropertyStats,
   PropertySummary
 } from '../models/property.model';
 import { extractErrorMessage } from '../utils/http-error.util';
@@ -16,9 +17,13 @@ type PropertyResult = { ok: true; property: PropertyDetail } | { ok: false; mess
 type UploadResult = { ok: true; url: string } | { ok: false; message: string };
 
 export const EMPTY_FILTERS: PropertyFilters = {
+  search: '',
   city: '',
   maxPrice: null,
   bedrooms: null,
+  petsAllowed: null,
+  isFurnished: null,
+  tag: null,
 };
 
 const PAGE_SIZE = 60;
@@ -47,9 +52,13 @@ export class PropertyService {
     this._loading.set(true);
     try {
       let params = new HttpParams().set('pageSize', PAGE_SIZE);
+      if (filters.search) params = params.set('search', filters.search);
       if (filters.city) params = params.set('city', filters.city);
       if (filters.maxPrice !== null) params = params.set('maxPrice', filters.maxPrice);
       if (filters.bedrooms !== null) params = params.set('bedrooms', filters.bedrooms);
+      if (filters.petsAllowed !== null) params = params.set('petsAllowed', filters.petsAllowed);
+      if (filters.isFurnished !== null) params = params.set('isFurnished', filters.isFurnished);
+      if (filters.tag) params = params.set('tag', filters.tag);
 
       const result = await firstValueFrom(
         this.http.get<PagedResult<PropertySummary>>(`${environment.apiUrl}/properties`, { params })
@@ -93,6 +102,22 @@ export class PropertyService {
       return await firstValueFrom(this.http.get<PropertyMapPoint[]>(`${environment.apiUrl}/properties/map`));
     } catch {
       return [];
+    }
+  }
+
+  async getCities(): Promise<string[]> {
+    try {
+      return await firstValueFrom(this.http.get<string[]>(`${environment.apiUrl}/properties/cities`));
+    } catch {
+      return [];
+    }
+  }
+
+  async getStats(): Promise<PropertyStats | null> {
+    try {
+      return await firstValueFrom(this.http.get<PropertyStats>(`${environment.apiUrl}/stats`));
+    } catch {
+      return null;
     }
   }
 

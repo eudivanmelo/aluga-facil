@@ -33,6 +33,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
+builder.Services.AddScoped<IStatsService, StatsService>();
 
 // ── MinIO ─────────────────────────────────────────────────────────────────────
 builder.Services.AddSingleton<IMinioClient>(sp =>

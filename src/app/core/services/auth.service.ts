@@ -21,6 +21,11 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface UpdateProfilePayload {
+  name: string;
+  phone: string;
+}
+
 interface AuthResponse {
   token: string;
   user: AppUser;
@@ -88,6 +93,24 @@ export class AuthService {
       return { ok: true };
     } catch (error) {
       return { ok: false, message: this.extractErrorMessage(error, 'CPF ou senha incorretos.') };
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async updateProfile(payload: UpdateProfilePayload): Promise<AuthResult> {
+    this._loading.set(true);
+    try {
+      const updated = await firstValueFrom(
+        this.http.put<AppUser>(`${environment.apiUrl}/users/me`, payload)
+      );
+      this._currentUser.set(updated);
+      if (this.isBrowser) {
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(updated));
+      }
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, message: this.extractErrorMessage(error, 'Não foi possível atualizar seu perfil.') };
     } finally {
       this._loading.set(false);
     }

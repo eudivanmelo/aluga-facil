@@ -1,0 +1,164 @@
+<div class="mx-auto max-w-4xl px-4 py-8 pb-16 sm:px-6 lg:px-8">
+  <!-- Profile banner -->
+  <div class="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white">
+    <div class="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-400/20 blur-2xl"></div>
+    <div class="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+      <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/30 bg-white/20 text-2xl font-extrabold backdrop-blur-sm">
+        {{ initials() }}
+      </div>
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-xl font-extrabold">{{ currentUser()?.name }}</h1>
+        <p class="truncate text-sm text-brand-100">{{ currentUser()?.email }}</p>
+        @if (currentUser()?.verified) {
+          <span class="mt-1 inline-block rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium">Conta verificada</span>
+        } @else {
+          <span class="mt-1 inline-block rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium">Conta não verificada</span>
+        }
+      </div>
+      <button
+        type="button"
+        (click)="logout()"
+        class="flex shrink-0 items-center gap-1.5 rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold transition-colors hover:bg-white/25"
+      >
+        <svg lucideLogOut [size]="16"></svg>
+        Sair
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="mb-6 flex gap-1 rounded-2xl bg-gray-100 p-1">
+    <button
+      type="button"
+      (click)="setTab('imoveis')"
+      class="flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all"
+      [class.bg-white]="tab() === 'imoveis'"
+      [class.shadow-sm]="tab() === 'imoveis'"
+      [class.text-gray-900]="tab() === 'imoveis'"
+      [class.text-gray-500]="tab() !== 'imoveis'"
+    >
+      Meus Imóveis
+    </button>
+    <button
+      type="button"
+      (click)="setTab('configuracoes')"
+      class="flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all"
+      [class.bg-white]="tab() === 'configuracoes'"
+      [class.shadow-sm]="tab() === 'configuracoes'"
+      [class.text-gray-900]="tab() === 'configuracoes'"
+      [class.text-gray-500]="tab() !== 'configuracoes'"
+    >
+      Configurações
+    </button>
+  </div>
+
+  <!-- Meus Imóveis -->
+  @if (tab() === 'imoveis') {
+    @if (myProperties().length === 0) {
+      <div class="flex flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white px-4 py-16 text-center shadow-sm">
+        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
+          <svg lucideHome [size]="24"></svg>
+        </div>
+        <h3 class="mb-1 text-base font-bold text-gray-900">Você ainda não tem anúncios</h3>
+        <p class="max-w-sm text-sm text-gray-500">Os imóveis que você anunciar vão aparecer aqui.</p>
+        <a
+          routerLink="/imoveis/novo"
+          class="btn-primary mt-5 !rounded-xl !px-5 !py-2.5 text-sm font-bold"
+        >
+          <svg lucidePlus [size]="16"></svg>
+          Anunciar imóvel
+        </a>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        @for (property of myProperties(); track property.id) {
+          <app-property-card [property]="property" />
+        }
+      </div>
+    }
+  }
+
+  <!-- Configurações -->
+  @if (tab() === 'configuracoes') {
+    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <h2 class="mb-4 font-bold text-gray-900">Dados da conta</h2>
+
+      <form [formGroup]="settingsForm" (ngSubmit)="onSaveSettings()" class="space-y-4">
+        <div>
+          <label for="name" class="mb-1.5 block text-sm font-semibold text-gray-700">Nome completo</label>
+          <div class="relative rounded-xl">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+              <svg lucideUser [size]="18" class="text-gray-400"></svg>
+            </div>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="input-field !pl-10"
+              [ngClass]="{ 'input-error': settingsForm.get('name')?.touched && settingsForm.get('name')?.invalid }"
+            />
+          </div>
+          @if (settingsForm.get('name')?.touched && settingsForm.get('name')?.invalid) {
+            <div class="field-error">O nome completo é obrigatório.</div>
+          }
+        </div>
+
+        <div>
+          <label for="phone" class="mb-1.5 block text-sm font-semibold text-gray-700">Telefone / WhatsApp</label>
+          <div class="relative rounded-xl">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+              <svg lucidePhone [size]="18" class="text-gray-400"></svg>
+            </div>
+            <input
+              id="phone"
+              type="text"
+              inputmode="numeric"
+              formControlName="phone"
+              class="input-field !pl-10"
+              [ngClass]="{ 'input-error': settingsForm.get('phone')?.touched && settingsForm.get('phone')?.invalid }"
+            />
+          </div>
+          @if (settingsForm.get('phone')?.touched && settingsForm.get('phone')?.invalid) {
+            <div class="field-error">Informe um telefone válido.</div>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">E-mail</label>
+            <input
+              type="text"
+              [value]="currentUser()?.email"
+              disabled
+              class="input-field cursor-not-allowed bg-gray-50 text-gray-500"
+            />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold text-gray-700">CPF</label>
+            <input
+              type="text"
+              [value]="currentUser()?.cpf | cpf"
+              disabled
+              class="input-field cursor-not-allowed bg-gray-50 text-gray-500"
+            />
+          </div>
+        </div>
+
+        <div class="border-t border-gray-100 pt-4">
+          <button
+            type="submit"
+            [disabled]="isSubmitting() || settingsForm.invalid"
+            class="btn-primary !rounded-xl !px-5 !py-2.5 text-sm font-bold"
+          >
+            @if (isSubmitting()) {
+              <span class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent align-[-2px]"></span>
+              Salvando...
+            } @else {
+              Salvar alterações
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

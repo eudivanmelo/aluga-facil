@@ -1,59 +1,59 @@
-export interface Property {
+import { AppUser } from './user.model';
+
+export interface PropertySummary {
   id: number;
   title: string;
-  address: string;
-  neighborhood: string;
+  price: number;
+  paymentFrequency: string;
   city: string;
   state: string;
-  price: number;
-  type: PropertyType;
+  neighborhood: string;
   bedrooms: number;
   bathrooms: number;
-  parking: number;
-  area: number;
-  images: string[];
-  videoUrl?: string;
-  description: string;
-  amenities: string[];
-  owner: string;
-  phone: string;
-  whatsapp: string;
-  ownerId?: string;
-  createdAt: number;
+  parkingSpaces: number;
+  petsAllowed: boolean;
+  isFurnished: boolean;
+  tags: string[];
+  firstPhotoUrl: string | null;
+  latitude: number;
+  longitude: number;
 }
 
-export type PropertyType = 'Apartamento' | 'Casa' | 'Studio' | 'Cobertura' | 'Kitnet' | 'Sobrado';
-
-export const PROPERTY_TYPES: PropertyType[] = [
-  'Apartamento',
-  'Casa',
-  'Studio',
-  'Cobertura',
-  'Kitnet',
-  'Sobrado',
-];
-
-export const AMENITY_OPTIONS: string[] = [
-  'Academia',
-  'Piscina',
-  'Portaria 24h',
-  'Salão de Festas',
-  'Playground',
-  'Pet Friendly',
-  'Churrasqueira',
-  'Garagem Coberta',
-  'Lavanderia',
-  'Mobiliado',
-  'Wi-Fi',
-  'Elevador',
-  'Sauna',
-  'Jardim',
-];
+export interface PropertyDetail {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  paymentFrequency: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  complement: string;
+  city: string;
+  state: string;
+  latitude: number;
+  longitude: number;
+  bedrooms: number;
+  bathrooms: number;
+  parkingSpaces: number;
+  petsAllowed: boolean;
+  isFurnished: boolean;
+  tags: string[];
+  photoUrls: string[];
+  owner: AppUser;
+  whatsAppLink: string;
+}
 
 export interface PropertyFilters {
-  search: string;
-  type: PropertyType | 'Todos';
-  minPrice: number | null;
+  city: string;
   maxPrice: number | null;
   bedrooms: number | null;
+}
+
+export interface PagedResult<T> {
+  data: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
 }

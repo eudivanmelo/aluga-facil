@@ -10,7 +10,6 @@ import {
   LucideDynamicIcon 
 } from '@lucide/angular';
 import { AuthService } from '../../core/services/auth.service';
-import { FavoritesService } from '../../core/services/favorites.service';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
@@ -29,7 +28,6 @@ import { ToastService } from '../../core/services/toast.service';
 })
 export class HeaderComponent {
   private readonly auth = inject(AuthService);
-  private readonly favorites = inject(FavoritesService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
@@ -40,7 +38,6 @@ export class HeaderComponent {
 
   readonly currentUser = this.auth.currentUser;
   readonly isAuthenticated = this.auth.isAuthenticated;
-  readonly favoritesCount = this.favorites.count;
 
   readonly initials = computed(() => {
     const name = this.currentUser()?.name ?? '';

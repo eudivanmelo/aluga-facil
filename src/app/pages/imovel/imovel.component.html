@@ -6,7 +6,16 @@
 </div>
 
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-  @if (property(); as p) {
+  @if (loading()) {
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 animate-pulse">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="aspect-[16/10] w-full rounded-2xl bg-gray-100"></div>
+        <div class="h-6 w-3/4 rounded bg-gray-100"></div>
+        <div class="h-4 w-1/2 rounded bg-gray-100"></div>
+      </div>
+      <div class="h-64 rounded-2xl bg-gray-100"></div>
+    </div>
+  } @else if (property(); as p) {
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <!-- Coluna Principal (Esquerda) -->
       <div class="lg:col-span-2 space-y-6">
@@ -14,13 +23,15 @@
         <div class="relative overflow-hidden rounded-2xl bg-white shadow-sm border border-gray-100">
           <!-- Imagem Ativa Principal -->
           <div class="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-            <img [src]="p.images[activeImageIndex()]" [alt]="p.title" class="h-full w-full object-cover" />
-            
+            @if (p.photoUrls.length > 0) {
+              <img [src]="p.photoUrls[activeImageIndex()]" [alt]="p.title" class="h-full w-full object-cover" />
+            }
+
             <!-- Botão Imagem Anterior -->
-            @if (p.images.length > 1) {
-              <button 
+            @if (p.photoUrls.length > 1) {
+              <button
                 type="button"
-                (click)="prevImage()" 
+                (click)="prevImage()"
                 class="absolute left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:bg-white active:scale-95 text-gray-700 hover:text-brand-600 z-10"
                 aria-label="Imagem anterior"
               >
@@ -29,10 +40,10 @@
             }
 
             <!-- Botão Próxima Imagem -->
-            @if (p.images.length > 1) {
-              <button 
+            @if (p.photoUrls.length > 1) {
+              <button
                 type="button"
-                (click)="nextImage()" 
+                (click)="nextImage()"
                 class="absolute right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:bg-white active:scale-95 text-gray-700 hover:text-brand-600 z-10"
                 aria-label="Próxima imagem"
               >
@@ -40,29 +51,14 @@
               </button>
             }
 
-            <!-- Botão Favoritar Flutuante -->
-            <button 
-              type="button"
-              (click)="toggleFavorite()" 
-              class="absolute top-4 right-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:bg-white active:scale-95 text-gray-500 hover:text-red-500 z-10"
-              [attr.aria-label]="isFavorite() ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
-            >
-              <svg 
-                lucideHeart 
-                [size]="20" 
-                [class]="{ 'fill-red-500 text-red-500': isFavorite(), 'text-gray-400': !isFavorite() }" 
-                class="transition-colors duration-200"
-              ></svg>
-            </button>
-
             <!-- Indicadores (Pontos) -->
-            @if (p.images.length > 1) {
+            @if (p.photoUrls.length > 1) {
               <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                @for (img of p.images; track $index) {
-                  <button 
+                @for (img of p.photoUrls; track $index) {
+                  <button
                     type="button"
-                    (click)="setImageIndex($index)" 
-                    class="h-2 w-2 rounded-full transition-all duration-300" 
+                    (click)="setImageIndex($index)"
+                    class="h-2 w-2 rounded-full transition-all duration-300"
                     [class]="{ 'bg-white w-4': activeImageIndex() === $index, 'bg-white/50': activeImageIndex() !== $index }"
                     [attr.aria-label]="'Ir para imagem ' + ($index + 1)"
                   ></button>
@@ -70,15 +66,15 @@
               </div>
             }
           </div>
-          
+
           <!-- Miniaturas (Abaixo da imagem principal) -->
-          @if (p.images.length > 1) {
+          @if (p.photoUrls.length > 1) {
             <div class="flex gap-3 p-4 overflow-x-auto border-t border-gray-50">
-              @for (img of p.images; track $index) {
-                <button 
+              @for (img of p.photoUrls; track $index) {
+                <button
                   type="button"
-                  (click)="setImageIndex($index)" 
-                  class="relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all" 
+                  (click)="setImageIndex($index)"
+                  class="relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all"
                   [class]="{ 'border-brand-600 ring-2 ring-brand-100': activeImageIndex() === $index, 'border-transparent hover:border-gray-300': activeImageIndex() !== $index }"
                   [attr.aria-label]="'Ver imagem ' + ($index + 1)"
                 >
@@ -91,22 +87,17 @@
 
         <!-- Informações do Cabeçalho -->
         <div class="space-y-3">
-          <div>
-            <span [class]="badgeClass()" class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
-              {{ p.type }}
-            </span>
-          </div>
           <h1 class="text-2xl font-extrabold text-gray-900 sm:text-3xl tracking-tight leading-tight">
             {{ p.title }}
           </h1>
           <div class="flex items-center gap-2 text-sm text-gray-500">
             <svg lucideMapPin [size]="16" class="text-gray-400 shrink-0"></svg>
-            <span>{{ p.address }} — {{ p.neighborhood }}, {{ p.city }}/{{ p.state }}</span>
+            <span>{{ p.street }}, {{ p.number }} — {{ p.neighborhood }}, {{ p.city }}/{{ p.state }}</span>
           </div>
         </div>
 
         <!-- Grid de Características -->
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="grid grid-cols-3 gap-4">
           <div class="flex flex-col items-center justify-center p-4 bg-brand-50/40 border border-brand-100/30 rounded-2xl text-center">
             <svg lucideBed [size]="22" class="text-brand-600 mb-2"></svg>
             <span class="text-lg font-bold text-gray-900">{{ p.bedrooms }}</span>
@@ -121,14 +112,8 @@
 
           <div class="flex flex-col items-center justify-center p-4 bg-brand-50/40 border border-brand-100/30 rounded-2xl text-center">
             <svg lucideCar [size]="22" class="text-brand-600 mb-2"></svg>
-            <span class="text-lg font-bold text-gray-900">{{ p.parking }}</span>
-            <span class="text-xs font-medium text-gray-500">{{ p.parking === 1 ? 'Vaga' : 'Vagas' }}</span>
-          </div>
-
-          <div class="flex flex-col items-center justify-center p-4 bg-brand-50/40 border border-brand-100/30 rounded-2xl text-center">
-            <svg lucideMaximize [size]="22" class="text-brand-600 mb-2"></svg>
-            <span class="text-lg font-bold text-gray-900">{{ p.area }}m²</span>
-            <span class="text-xs font-medium text-gray-500">Área</span>
+            <span class="text-lg font-bold text-gray-900">{{ p.parkingSpaces }}</span>
+            <span class="text-xs font-medium text-gray-500">{{ p.parkingSpaces === 1 ? 'Vaga' : 'Vagas' }}</span>
           </div>
         </div>
 
@@ -141,30 +126,32 @@
         </div>
 
         <!-- Seção de Comodidades -->
-        <div class="space-y-3 border-t border-gray-100 pt-6">
-          <h2 class="text-lg font-bold text-gray-900">Comodidades</h2>
-          <div class="flex flex-wrap gap-2.5">
-            @for (amenity of p.amenities; track amenity) {
-              <div class="inline-flex items-center gap-2 rounded-full bg-brand-50/50 px-4 py-2 text-sm font-semibold text-brand-800 ring-1 ring-brand-700/5">
-                @switch (getAmenityIcon(amenity)) {
-                  @case ('dumbbell') {
-                    <svg lucideDumbbell [size]="15" class="text-brand-600 shrink-0"></svg>
+        @if (p.tags.length > 0) {
+          <div class="space-y-3 border-t border-gray-100 pt-6">
+            <h2 class="text-lg font-bold text-gray-900">Comodidades</h2>
+            <div class="flex flex-wrap gap-2.5">
+              @for (tag of p.tags; track tag) {
+                <div class="inline-flex items-center gap-2 rounded-full bg-brand-50/50 px-4 py-2 text-sm font-semibold text-brand-800 ring-1 ring-brand-700/5">
+                  @switch (getTagIcon(tag)) {
+                    @case ('dumbbell') {
+                      <svg lucideDumbbell [size]="15" class="text-brand-600 shrink-0"></svg>
+                    }
+                    @case ('waves') {
+                      <svg lucideWaves [size]="15" class="text-brand-600 shrink-0"></svg>
+                    }
+                    @case ('shield') {
+                      <svg lucideShield [size]="15" class="text-brand-600 shrink-0"></svg>
+                    }
+                    @default {
+                      <svg lucideCheck [size]="15" class="text-brand-600 shrink-0"></svg>
+                    }
                   }
-                  @case ('waves') {
-                    <svg lucideWaves [size]="15" class="text-brand-600 shrink-0"></svg>
-                  }
-                  @case ('shield') {
-                    <svg lucideShield [size]="15" class="text-brand-600 shrink-0"></svg>
-                  }
-                  @default {
-                    <svg lucideCheck [size]="15" class="text-brand-600 shrink-0"></svg>
-                  }
-                }
-                {{ amenity }}
-              </div>
-            }
+                  {{ tag }}
+                </div>
+              }
+            </div>
           </div>
-        </div>
+        }
       </div>
 
       <!-- Coluna Lateral Fixa -->
@@ -174,9 +161,9 @@
           <div>
             <span class="text-xs font-bold tracking-wider text-gray-400 uppercase">Valor do Aluguel</span>
             <div class="flex items-baseline gap-1 mt-1">
-              <span class="text-3xl font-extrabold text-brand-600 tracking-tight">{{ formattedPrice() }}</span>
+              <span class="text-3xl font-extrabold text-brand-600 tracking-tight">{{ formattedPrice(p.price) }}</span>
             </div>
-            <span class="text-xs text-gray-400 mt-1 block">por mês + encargos</span>
+            <span class="text-xs text-gray-400 mt-1 block">por {{ p.paymentFrequency.toLowerCase() }} + encargos</span>
           </div>
 
           <hr class="border-gray-100" />
@@ -184,24 +171,32 @@
           <!-- Informações do Anunciante -->
           <div class="flex items-center gap-3">
             <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-700 text-sm font-extrabold shadow-sm border border-brand-100/30">
-              {{ ownerInitials() }}
+              {{ ownerInitials(p.owner.name) }}
             </div>
             <div class="flex-1 min-w-0">
-              <h3 class="text-sm font-bold text-gray-900 truncate">{{ p.owner }}</h3>
+              <h3 class="text-sm font-bold text-gray-900 truncate">{{ p.owner.name }}</h3>
               <span class="text-xs font-medium text-gray-400">Anunciante</span>
             </div>
           </div>
 
           <!-- Botões de Ação -->
           <div class="flex flex-col gap-3">
-            <button type="button" class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold px-4 py-3.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer">
+            <button
+              type="button"
+              (click)="handleWhatsApp()"
+              class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold px-4 py-3.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+            >
               <svg class="h-5 w-5 fill-current shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
               Conversar no WhatsApp
             </button>
 
-            <button type="button" class="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-3.5 shadow-sm transition-all active:scale-[0.98]">
+            <button
+              type="button"
+              (click)="handleCall()"
+              class="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-3.5 shadow-sm transition-all active:scale-[0.98]"
+            >
               <svg lucidePhone [size]="18" class="shrink-0"></svg>
               Ligar agora
             </button>

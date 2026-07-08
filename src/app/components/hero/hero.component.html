@@ -20,7 +20,7 @@
           type="text"
           [value]="searchTerm()"
           (input)="onSearchInput($any($event.target).value)"
-          placeholder="Buscar por cidade, bairro ou estado..."
+          placeholder="Buscar por cidade..."
           class="flex-1 bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400"
         />
         @if (searchTerm()) {

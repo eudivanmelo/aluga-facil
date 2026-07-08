@@ -1,65 +1,56 @@
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { Property, PropertyFilters } from '../models/property.model';
-import { MOCK_PROPERTIES } from '../data/mock-properties.data';
-
-const STORAGE_KEY = 'aluga-facil:properties';
+import { Injectable, effect, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { PagedResult, PropertyDetail, PropertyFilters, PropertySummary } from '../models/property.model';
 
 export const EMPTY_FILTERS: PropertyFilters = {
-  search: '',
-  type: 'Todos',
-  minPrice: null,
+  city: '',
   maxPrice: null,
   bedrooms: null,
 };
 
+const PAGE_SIZE = 60;
+
 @Injectable({ providedIn: 'root' })
 export class PropertyService {
-  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly _properties = signal<Property[]>(this.restore());
+  private readonly http = inject(HttpClient);
+
+  private readonly _properties = signal<PropertySummary[]>([]);
   private readonly _filters = signal<PropertyFilters>({ ...EMPTY_FILTERS });
+  private readonly _total = signal(0);
+  private readonly _loading = signal(false);
 
   readonly properties = this._properties.asReadonly();
   readonly filters = this._filters.asReadonly();
+  readonly total = this._total.asReadonly();
+  readonly loading = this._loading.asReadonly();
 
-  readonly filteredProperties = computed(() => {
-    const list = this._properties();
-    const f = this._filters();
-    const search = f.search.trim().toLowerCase();
-
-    return list
-      .filter((p) => {
-        const matchesSearch =
-          !search ||
-          p.title.toLowerCase().includes(search) ||
-          p.neighborhood.toLowerCase().includes(search) ||
-          p.city.toLowerCase().includes(search);
-        const matchesType = f.type === 'Todos' || p.type === f.type;
-        const matchesMin = f.minPrice === null || p.price >= f.minPrice;
-        const matchesMax = f.maxPrice === null || p.price <= f.maxPrice;
-        const matchesBedrooms = f.bedrooms === null || p.bedrooms >= f.bedrooms;
-        return matchesSearch && matchesType && matchesMin && matchesMax && matchesBedrooms;
-      })
-      .sort((a, b) => b.createdAt - a.createdAt);
-  });
-
-  readonly total = computed(() => this._properties().length);
-  readonly filteredTotal = computed(() => this.filteredProperties().length);
-
-  private restore(): Property[] {
-    if (!this.isBrowser) return [...MOCK_PROPERTIES];
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw) as Property[];
-    } catch {
-      /* ignora e cai para o mock */
-    }
-    return [...MOCK_PROPERTIES];
+  constructor() {
+    effect(() => {
+      this.fetchCatalog(this._filters());
+    });
   }
 
-  private persist(): void {
-    if (!this.isBrowser) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(this._properties()));
+  private async fetchCatalog(filters: PropertyFilters): Promise<void> {
+    this._loading.set(true);
+    try {
+      let params = new HttpParams().set('pageSize', PAGE_SIZE);
+      if (filters.city) params = params.set('city', filters.city);
+      if (filters.maxPrice !== null) params = params.set('maxPrice', filters.maxPrice);
+      if (filters.bedrooms !== null) params = params.set('bedrooms', filters.bedrooms);
+
+      const result = await firstValueFrom(
+        this.http.get<PagedResult<PropertySummary>>(`${environment.apiUrl}/properties`, { params })
+      );
+      this._properties.set(result.data);
+      this._total.set(result.total);
+    } catch {
+      this._properties.set([]);
+      this._total.set(0);
+    } finally {
+      this._loading.set(false);
+    }
   }
 
   setFilters(filters: Partial<PropertyFilters>): void {
@@ -70,29 +61,19 @@ export class PropertyService {
     this._filters.set({ ...EMPTY_FILTERS });
   }
 
-  getById(id: number): Property | undefined {
-    return this._properties().find((p) => p.id === id);
+  async getById(id: number): Promise<PropertyDetail | null> {
+    try {
+      return await firstValueFrom(this.http.get<PropertyDetail>(`${environment.apiUrl}/properties/${id}`));
+    } catch {
+      return null;
+    }
   }
 
-  getByOwner(ownerId: string): Property[] {
-    return this._properties().filter((p) => p.ownerId === ownerId);
-  }
-
-  create(data: Omit<Property, 'id' | 'createdAt'>): Property {
-    const nextId = this._properties().reduce((max, p) => Math.max(max, p.id), 0) + 1;
-    const newProperty: Property = { ...data, id: nextId, createdAt: Date.now() };
-    this._properties.update((list) => [newProperty, ...list]);
-    this.persist();
-    return newProperty;
-  }
-
-  update(id: number, data: Partial<Property>): void {
-    this._properties.update((list) => list.map((p) => (p.id === id ? { ...p, ...data } : p)));
-    this.persist();
-  }
-
-  delete(id: number): void {
-    this._properties.update((list) => list.filter((p) => p.id !== id));
-    this.persist();
+  async getMine(): Promise<PropertySummary[]> {
+    try {
+      return await firstValueFrom(this.http.get<PropertySummary[]>(`${environment.apiUrl}/properties/mine`));
+    } catch {
+      return [];
+    }
   }
 }

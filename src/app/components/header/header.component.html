@@ -17,15 +17,6 @@
         Mapa
       </a>
       @if (isAuthenticated()) {
-        <a routerLink="/perfil/favoritos" routerLinkActive="bg-brand-50 text-brand-700"
-           class="relative rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100">
-          Favoritos
-          @if (favoritesCount() > 0) {
-            <span class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent-500 text-[10px] font-bold text-white">
-              {{ favoritesCount() }}
-            </span>
-          }
-        </a>
         <a routerLink="/imoveis/novo" routerLinkActive="bg-brand-50 text-brand-700"
            class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100">
           Anunciar imóvel
@@ -81,7 +72,6 @@
         <a routerLink="/" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Início</a>
         <a routerLink="/mapa" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Mapa</a>
         @if (isAuthenticated()) {
-          <a routerLink="/perfil/favoritos" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Favoritos ({{ favoritesCount() }})</a>
           <a routerLink="/imoveis/novo" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Anunciar imóvel</a>
           <a routerLink="/perfil" (click)="closeMobileMenu()" class="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Meu perfil</a>
           <button (click)="logout()" class="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50">Sair</button>

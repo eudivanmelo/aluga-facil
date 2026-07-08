@@ -13,6 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { PropertyService } from '../../core/services/property.service';
 import { ToastService } from '../../core/services/toast.service';
 import { PropertyCardComponent } from '../../components/property-card/property-card.component';
+import { PropertySummary } from '../../core/models/property.model';
 import { PhonePipe } from '../../core/pipes/phone.pipe';
 import { CpfPipe } from '../../core/pipes/cpf.pipe';
 import { phoneValidator } from '../../core/validators/custom-validators';
@@ -58,11 +59,8 @@ export class PerfilComponent implements OnInit {
       .join('');
   });
 
-  readonly myProperties = computed(() => {
-    const userId = this.currentUser()?.id;
-    if (userId === undefined) return [];
-    return this.propertyService.properties().filter((p) => p.ownerId === String(userId));
-  });
+  readonly myProperties = signal<PropertySummary[]>([]);
+  readonly loadingProperties = signal(true);
 
   readonly settingsForm: FormGroup = this.fb.group({
     name: ['', [Validators.required]],
@@ -78,6 +76,11 @@ export class PerfilComponent implements OnInit {
         const formatted = this.phonePipe.transform(val.replace(/\D/g, ''));
         this.settingsForm.get('phone')?.setValue(formatted, { emitEvent: false });
       }
+    });
+
+    this.propertyService.getMine().then((properties) => {
+      this.myProperties.set(properties);
+      this.loadingProperties.set(false);
     });
   }
 

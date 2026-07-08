@@ -2,7 +2,6 @@ import { Component, inject, signal, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideSlidersHorizontal, LucideChevronDown } from '@lucide/angular';
 import { PropertyService } from '../../core/services/property.service';
-import { PropertyType } from '../../core/models/property.model';
 
 @Component({
   selector: 'app-filter-bar',
@@ -12,15 +11,6 @@ import { PropertyType } from '../../core/models/property.model';
 })
 export class FilterBarComponent {
   readonly propertyService = inject(PropertyService);
-
-  readonly types = input<(PropertyType | 'Todos')[]>([
-    'Todos',
-    'Apartamento',
-    'Casa',
-    'Studio',
-    'Cobertura',
-    'Kitnet',
-  ]);
 
   readonly priceOptions = input<number[]>([
     1000, 1500, 2000, 2500, 3000, 4000, 5000, 7500, 10000
@@ -32,10 +22,6 @@ export class FilterBarComponent {
 
   toggleExtraFilters(): void {
     this.showExtraFilters.update((v) => !v);
-  }
-
-  selectType(type: PropertyType | 'Todos'): void {
-    this.propertyService.setFilters({ type });
   }
 
   changeMaxPrice(event: Event): void {

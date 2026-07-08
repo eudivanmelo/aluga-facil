@@ -22,7 +22,7 @@ export class HeroComponent {
 
   onSearchInput(value: string): void {
     this.searchTerm.set(value);
-    this.propertyService.setFilters({ search: value });
+    this.propertyService.setFilters({ city: value });
   }
 
   clearSearch(): void {
